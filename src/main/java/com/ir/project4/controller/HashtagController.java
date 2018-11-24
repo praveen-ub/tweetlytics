@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ir.project4.service.HashtagService;
-import com.pubsub.project2.dto.AppResponse;
+import com.ir.project4.dto.AppResponse;
 
 @RestController
 @RequestMapping("/api/hashtags")
