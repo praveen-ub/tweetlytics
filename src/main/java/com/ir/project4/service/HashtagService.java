@@ -8,10 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,19 +28,12 @@ public class HashtagService{
 	 *  sort map by descending values of counter
 	 *  return top K
 	 */
-	public List<Hashtag> getTrendingHashtags(String city, String topic){
+	public List<Hashtag> getTrendingHashtags(SolrDocumentList documentsList){
 	
-		SolrClient solr = new HttpSolrClient.Builder(solrEndPoint).build();	
 		List<Hashtag> trendingHashTagsList = new ArrayList<Hashtag>();		
 		int K = 3;
 		try{
 			
-			SolrQuery query = new SolrQuery();
-			query.setQuery("BiggBoss");
-			//query.setCity(<city>);
-			//query.setTopic(<topic>);
-			QueryResponse response = solr.query(query);
-			SolrDocumentList documentsList = response.getResults();
 			HashMap<String, Integer> trendingHashTags = new HashMap<String, Integer>();
 			for (SolrDocument document : documentsList){
 				
@@ -67,7 +56,10 @@ public class HashtagService{
 					}
 			}
 			List<Map.Entry<String, Integer>> sortedHashtagEntries = getSortedHashtagsEntries(trendingHashTags.entrySet());
-			sortedHashtagEntries = sortedHashtagEntries.subList(0, K); //topK
+			if(sortedHashtagEntries.size() > K){
+				sortedHashtagEntries = sortedHashtagEntries.subList(0, K); //topK
+			}
+			
 			for (Map.Entry<String, Integer> entry : sortedHashtagEntries) {
 				
 				Hashtag tag = new Hashtag();

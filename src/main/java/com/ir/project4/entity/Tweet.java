@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(Include.NON_NULL)
 public class Tweet{
@@ -16,6 +17,7 @@ public class Tweet{
 	
 	private String tweetLang;
 	
+	@JsonProperty("text")
 	private String tweetText;
 	
 	private List<String> mentions;
