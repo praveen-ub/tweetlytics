@@ -6,11 +6,27 @@ public class Chart{
 	
 	private String title;
 	
-	private List<String> xData;
+	private List data;
 	
-	private List<Long> yData;
-	
+	public List getData() {
+		return data;
+	}
+
+	public void setData(List data) {
+		this.data = data;
+	}
+
 	private String chartType;
+	
+	private String dimension;
+
+	public String getDimension() {
+		return dimension;
+	}
+
+	public void setDimension(String dimension) {
+		this.dimension = dimension;
+	}
 
 	public String getTitle() {
 		return title;
@@ -18,22 +34,6 @@ public class Chart{
 
 	public void setTitle(String title) {
 		this.title = title;
-	}
-
-	public List<String> getxData() {
-		return xData;
-	}
-
-	public void setxData(List<String> xData) {
-		this.xData = xData;
-	}
-
-	public List<Long> getyData() {
-		return yData;
-	}
-
-	public void setyData(List<Long> yData) {
-		this.yData = yData;
 	}
 	
 	public String getChartType() {

@@ -38,7 +38,7 @@ public class TweetService{
 	}
 	
 	
-	public HashMap<String, List> filterTweets(JsonNode filter){
+	public HashMap<String, List> filterTweets(JsonNode filter, String queryString){
 		
 		SolrClient solrClient = new HttpSolrClient.Builder(solrEndPoint).build();	
 		SolrQuery query = new SolrQuery();
@@ -48,8 +48,14 @@ public class TweetService{
 			String filterQuery = getFilterString(filter);
 			query.setFilterQueries(filterQuery);
 		}
-		query.setQuery("*:*");
-		query.setRows(30000);
+		
+		if(queryString == null){
+			query.setQuery("*:*");
+		}
+		else{
+			query.setQuery(queryString);
+		}
+//		query.setRows(30000);
 		try{
 			QueryResponse response = solrClient.query(query);
 			SolrDocumentList documentsList = response.getResults();
@@ -66,12 +72,21 @@ public class TweetService{
 		return filterResults;
 	}
 	
-	public HashMap<String, List> searchTweets(String queryString){
+	public HashMap<String, List> searchTweets(String queryString, JsonNode filter){
 		
 		SolrClient solrClient = new HttpSolrClient.Builder(solrEndPoint).build();	
 		SolrQuery query = new SolrQuery();
-		query.setQuery(queryString);
-		query.setRows(30000);
+		if(queryString == null){
+			query.setQuery("*:*");
+		}
+		else{
+			query.setQuery(queryString);
+		}
+//		query.setRows(30000);
+		if(filter!=null){
+			String filterQuery = getFilterString(filter);
+			query.setFilterQueries(filterQuery);
+		}
 		HashMap<String, List> searchResults = new HashMap<String, List>();
 		try{
 			//Add logic for relevancy
@@ -97,7 +112,7 @@ public class TweetService{
 		hashtag = hashtag.replace("#", "");
 		SolrQuery query = new SolrQuery();
 		query.setQuery(hashtag);
-		query.setRows(30000);
+//		query.setRows(30000);
 		if(filter!=null){
 			String filterQuery = getFilterString(filter);
 			query.setFilterQueries(filterQuery);
@@ -130,18 +145,47 @@ public class TweetService{
 		return tweetList;
 	}
 	
-	private String getFilterString(JsonNode filters){
+	private String getOrFilter(String filterName, JsonNode filterValues){
+		
+		StringBuilder criteriaBuilder = new StringBuilder();
+		int i = 1;
+		for (JsonNode filterValue : filterValues) {
+			String filterValueStr = filterValue.asText();
+			filterValueStr = filterValueStr.toLowerCase();
+			if(filterName.contains("lang")){
+				filterValueStr = codeVsLanguage.get(filterValueStr);
+			}
+			else if(filterName.contains("city") && "New York".equals(filterValueStr)){
+				filterValueStr = "nyc";
+			}
+			else if(filterName.contains("topic") && "Infrastructure".equals(filterValueStr)){
+				filterValueStr = "infra";
+			}
+			else if(filterName.contains("topic") && "Social Unrest".equals(filterValueStr)){
+				filterValueStr = "social unrest";
+			}
+			
+			
+			criteriaBuilder.append(filterName+":"+filterValueStr);
+			
+			if ((i < filterValues.size())) {
+				criteriaBuilder.append(" OR ");
+			}
+			i++;
+		}
+		return criteriaBuilder.toString();
+	}
+	
+	public String getFilterString(JsonNode filters){
 		
 		StringBuilder criteriaBuilder = new StringBuilder();
 		int i=1;
 		for (JsonNode filter : filters){
 			
 			String filterName = filter.get("name").asText();
-			String filterValue = filter.get("value").asText().toLowerCase();
-			if(filterName.contains("lang")){
-				filterValue = codeVsLanguage.get(filterValue);
-			}
-			criteriaBuilder.append(filterName+":"+filterValue);
+			JsonNode filterValue = filter.get("value");
+			String filterString = getOrFilter(filterName, filterValue);
+			criteriaBuilder.append(filterString);
 			if((i < filters.size())){
 				criteriaBuilder.append(" AND ");	
 			}

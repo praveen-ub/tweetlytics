@@ -27,7 +27,11 @@ public class TweetController{
 	public AppResponse filterTweets(@RequestBody JsonNode request){
 		
 		JsonNode filter = request.get("filter");
-		HashMap<String, List> filterResults = tweetService.filterTweets(filter);
+		String query = null;
+		if(request.get("query")!=null){
+			query = request.get("query").asText();
+		}
+		HashMap<String, List> filterResults = tweetService.filterTweets(filter, query);
 		return new AppResponse(200,"Success", filterResults);
 	}
 	
@@ -37,13 +41,20 @@ public class TweetController{
 		JsonNode filter = request.get("filter");
 		String hashtag = request.get("hashtag").asText();
 		List<Tweet> tweets = tweetService.getRelevantTweetsByHashtags(hashtag,filter);
-		return new AppResponse(200, "Success",tweets);
+		HashMap<String, List<Tweet>> results = new HashMap<String, List<Tweet>>();
+		results.put("tweets",tweets);
+		return new AppResponse(200, "Success",results);
 	}
 	
-	@RequestMapping(value="/search",method=RequestMethod.GET)
-	public AppResponse searchTweets(@RequestParam("query") String query){
+	@RequestMapping(value="/search",method=RequestMethod.POST)
+	public AppResponse searchTweets(@RequestBody JsonNode request){
 		
-		HashMap<String, List> searchResults = tweetService.searchTweets(query); 
+		String query = null;
+		JsonNode filter = request.get("filter");
+		if(request.get("query")!=null){
+			query = request.get("query").asText();
+		}
+		HashMap<String, List> searchResults = tweetService.searchTweets(query, filter); 
 		return new AppResponse(200,"Success", searchResults);
 	}
 	

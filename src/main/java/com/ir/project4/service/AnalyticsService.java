@@ -10,6 +10,7 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -30,11 +31,17 @@ public class AnalyticsService{
 	
 	private static HashMap<String, String> codeVsLanguage = new HashMap<String, String>();
 	
+	private static HashMap<String, String> cityVsCountries = new HashMap<String, String>();
+	
+	@Autowired
+	private TweetService tweetService;
+	
+	
 	static{
 		
 		fieldVsChartType.put("tweet_lang", "bar");
-		fieldVsChartType.put("city", "bar");
-		fieldVsChartType.put("topic", "donut");
+		fieldVsChartType.put("city", "geo");
+		fieldVsChartType.put("topic", "pie");
 		
 		fieldNameVsDescription.put("tweet_lang", "Language");
 		fieldNameVsDescription.put("city", "City");
@@ -52,25 +59,36 @@ public class AnalyticsService{
 		codeVsLanguage.put("french","fr");
 		codeVsLanguage.put("spanish","es");
 		
+		cityVsCountries.put("delhi", "Delhi, India");
+		cityVsCountries.put("paris", "Paris, France");
+		cityVsCountries.put("mexico city", "Mexico City, Mexico");
+		cityVsCountries.put("bangkok", "Bangkok, Thailand");
+		cityVsCountries.put("nyc", "United States");
+		
 	}
 	
-//	private String capitalise(String strToCapitalise){
-//		
-//		String[] tokens = strToCapitalise.split(" ");
-//		StringBuilder strBuilder = new StringBuilder();
-//		for (String token: tokens){
-//			String capitalisedToken = 
-//			
-//		}
-//	}
+	private String capitalise(String strToCapitalise){
+		
+		String[] tokens = strToCapitalise.split(" ");
+		StringBuilder strBuilder = new StringBuilder();
+		boolean isMultiWord = tokens.length > 1;
+		for (int i=0;i<tokens.length;i++){
+			String token = tokens[i];
+			String capitalisedToken = token.substring(0, 1).toUpperCase() + token.substring(1);
+			strBuilder.append(capitalisedToken);
+			if(isMultiWord){
+				strBuilder.append(" ");
+			}
+		}
+		String captilasiedString = strBuilder.toString();
+		return captilasiedString.trim();
+	}
 	
 	public List<Chart> getCharts (String query, JsonNode filters){
 		
 		SolrClient solrClient = new HttpSolrClient.Builder(solrEndPoint).build();	
 		SolrQuery solrQuery = new SolrQuery();
 		
-		StringBuilder criteriaBuilder = new StringBuilder();
-		int i = 1;
 		List<Chart> charts = new ArrayList<Chart>();
 		
 		if (query == null){
@@ -78,21 +96,8 @@ public class AnalyticsService{
 		}
 		
 		if(filters!=null){
-			for (JsonNode filter : filters){
-				
-				String filterName = filter.get("name").asText();
-				String filterValue = filter.get("value").asText().toLowerCase();
-				if(filterName.contains("lang")){
-					filterValue = codeVsLanguage.get(filterValue);
-				}
-				criteriaBuilder.append(filterName+":"+filterValue);
-				if((i < filters.size())){
-					criteriaBuilder.append(" AND ");	
-				}
-				i++;
-			}
-			String criteria = criteriaBuilder.toString();
-			solrQuery.setFilterQueries(criteria);
+			String filterQuery = tweetService.getFilterString(filters);
+			solrQuery.setFilterQueries(filterQuery);
 		}
 		solrQuery.setQuery(query);
 		solrQuery.setFacet(true);
@@ -103,25 +108,39 @@ public class AnalyticsService{
 			QueryResponse response = solrClient.query(solrQuery);
 			List<FacetField> facetFields = response.getFacetFields();
 			for (FacetField field: facetFields){
+				List data = new ArrayList();
 				Chart chart = new Chart();
 				String fieldName = field.getName();
+				boolean isLangField = false;
+				boolean isCityField = false;
+				if("tweet_lang".equalsIgnoreCase(fieldName)){
+					isLangField = true;
+					
+				}
+				if("city".equalsIgnoreCase(fieldName)){
+					isCityField = true;
+				}
 				String chartTitle = "By "+fieldNameVsDescription.get(fieldName);
-				List<String> xData = new ArrayList<String>();
-				List<Long> yData = new ArrayList<Long>();
 				for (Count stat: field.getValues()){
 					String x = stat.getName();
-					if(fieldName == "tweet_lang"){
+					if(isLangField){
 						x= languageVsCode.get(x);
 					}
-//					x = capitalise(x);
-					xData.add(x);
-					yData.add(stat.getCount());
+					if(isCityField){
+						x = cityVsCountries.get(x);
+					}
+					x = capitalise(x);
+					List rowData = new ArrayList();
+					rowData.add(x);
+					rowData.add(stat.getCount());
+					data.add(rowData);
 				}
 				chart.setTitle(chartTitle);
 				chart.setChartType(fieldVsChartType.get(fieldName));
-				chart.setxData(xData);
-				chart.setyData(yData);
+				chart.setDimension(fieldName);
+				chart.setData(data);
 				charts.add(chart);
+				
 			}
 		}
 		catch(Exception ioe){

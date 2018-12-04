@@ -1,26 +1,211 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Hello WebSocket</title>
-    <!-- <script src="/app.js"></script> -->
+<title>CSK</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="assets/css/font-awesome.min.css">
+<link rel="stylesheet" type="text/css" href="assets/css/animate.css">
+<link rel="stylesheet" type="text/css" href="assets/css/slick.css">
+<link rel="stylesheet" type="text/css" href="assets/css/theme.css">
+<link rel="stylesheet" type="text/css" href="assets/css/style.css">
+<script defer src="https://use.fontawesome.com/releases/v5.5.0/js/all.js" integrity="sha384-GqVMZRt5Gn7tB9D9q7ONtcp4gtHIUEW/yG7h98J7IpE3kpi+srfFyyB/04OV6pG0" crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+  google.charts.load('current', {'packages':['corechart','geochart'],'mapsApiKey':'AIzaSyAQ4fdgmwd5tNsjI50ZqTIO0LURkXccxzc'});
+</script>
+<!--[if lt IE 9]>
+<script src="assets/js/html5shiv.min.js"></script>
+<script src="assets/js/respond.min.js"></script>
+<![endif]-->
+
 </head>
 <body>
-<noscript><h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websocket relies on Javascript being
-    enabled. Please enable
-    Javascript and reload this page!</h2></noscript>
-  <div id="main-content" class="container">
-    <div class=row>
-        <div class="col-xs-6">
-          <h3 class="">Trending Hashtags</h3>
-          <div id="publishing" class="table-responsive scrollable">
-            <table class="table">
-                <tbody id="publishing-table-body">
-                </tbody>
-            </table>
-          </div>
-        </div>
+<div id="preloader">
+  <div id="status">&nbsp;</div>
+</div>
+<a class="scrollToTop" href="#"><i class="fa fa-angle-up"></i></a>
+<header id="header">
+  <nav class="navbar navbar-default navbar-static-top" role="navigation">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+        <a class="navbar-brand" href="javascript:void(0);">Tweetlytics</a></div>
+      <div id="navbar" class="navbar-collapse collapse">
+        <ul class="nav navbar-nav custom_nav">
+          <li class="active"><a href="javascript:void(0);">Home</a></li>
+          <li><a href="javascript:void(0);">Analytics</a></li>
+
+        </ul>
+      </div>
+      <div class="search-box">
+    <input class="search-text" type="text" name="" placeholder="Search tweetlytics">
+    <a class="search-button" href='#'>
+    <i class="fas fa-search"></i>
+      </a>
     </div>
+    </div>
+  </nav>
+</header>
+<section id="content">
+
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-3 col-md-3 col-sm-4" id="filter-section">
+        <div class="left_sidebar">
+          <div class="single_widget">
+         <h2>Cities</h2>
+
+  <div class="container" >
+
+  <form>
+  				<div class="form-check">
+  					<label>
+  						<input type="checkbox" class="city-box" name="check" value="Delhi"> <span class="label-text">Delhi</span>
+  					</label>
+  				</div>
+  				<div class="form-check">
+  					<label>
+  						<input type="checkbox" class="city-box" name="check" value="Bangkok"> <span class="label-text">Bangkok</span>
+  					</label>
+  				</div>
+  				<div class="form-check">
+  					<label>
+  						<input type="checkbox" class="city-box" name="check" value="Paris"> <span class="label-text">Paris</span>
+  					</label>
+  				</div>
+  				<div class="form-check">
+  					<label>
+  						<input type="checkbox" class="city-box" name="check" value="New York"> <span class="label-text">New York</span>
+  					</label>
+  				</div>
+          <div class="form-check">
+  					<label>
+  						<input type="checkbox" class="city-box" name="check" value="Mexico city"> <span class="label-text">Mexico city</span>
+  					</label>
+  				</div>
+  			</form>
+      </div>
+
+          </div>
+  <div class="single_widget">
+  <h2>Topics</h2>
+
+  <div class="container">
+    <form>
+				<div class="form-check">
+					<label>
+						<input type="checkbox" class="topic-box" name="check" value="Environment"> <span class="label-text">Environment</span>
+					</label>
+				</div>
+				<div class="form-check">
+					<label>
+						<input type="checkbox" class="topic-box" name="check" value="Politics"> <span class="label-text">Politics</span>
+					</label>
+				</div>
+				<div class="form-check">
+					<label>
+						<input type="checkbox" class="topic-box" name="check" value="Crime"> <span class="label-text">Crime</span>
+					</label>
+				</div>
+				<div class="form-check">
+					<label>
+						<input type="checkbox" class="topic-box" name="check" value="Social Unrest"> <span class="label-text">Social Unrest</span>
+					</label>
+				</div>
+        <div class="form-check">
+					<label>
+						<input type="checkbox" class="topic-box" name="check" value="Infrastructure"> <span class="label-text">Infrastructure</span>
+					</label>
+				</div>
+    </form>
+  </div>
 
   </div>
+  <div class="single_widget">
+  <h2>Language</h2>
+
+  <div class="container">
+    <form>
+				<div class="form-check">
+					<label>
+						<input type="checkbox" class="lang-box" name="check" value="English"> <span class="label-text">English</span>
+					</label>
+				</div>
+				<div class="form-check">
+					<label>
+						<input type="checkbox" class="lang-box" name="check" value="Hindi"> <span class="label-text">Hindi</span>
+					</label>
+				</div>
+				<div class="form-check">
+					<label>
+						<input type="checkbox" class="lang-box" name="check" value="Spanish"> <span class="label-text">Spanish</span>
+					</label>
+				</div>
+				<div class="form-check">
+					<label>
+						<input type="checkbox" class="lang-box" name="check" value="Thai"> <span class="label-text">Thai</span>
+					</label>
+				</div>
+        <div class="form-check">
+					<label>
+						<input type="checkbox" class="lang-box" name="check" value="French"> <span class="label-text">French</span>
+					</label>
+				</div>
+    </form>
+  </div>
+
+  </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 col-md-6 col-sm-8" id="tweets">
+        <div class="middle_content">
+          <h2>Tweets</h2>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-3 col-sm-12" id="hashtags">
+        <div class="right_sidebar">
+          <div class="single_widget">
+            <h2>#Trending HashTags</h2>
+            <ul style="margin-left: 90px" class="list">
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="container col-lg-6 col-md-6 col-sm-8" style="display:none;" id="analytics">
+
+          <div class="row">
+            <div class= "col-sm-6" id="tweet_lang-div">
+            </div>
+            <div class= "col-sm-6" id="city-div">
+            </div>
+          </div>
+          <div class="row">
+            <div class= "col-sm-6" id="topic-div">
+            </div>
+          </div>
+      </div>
+
+
+
+    </div>
+  </div>
+</section>
+
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/wow.min.js"></script>
+<script src="assets/js/bootstrap.min.js"></script>
+<script src="assets/js/slick.min.js"></script>
+<script src="assets/js/custom.js"></script>
+<script src="assets/js/charts.js"></script>
+<script src="assets/js/main.js"></script>
+
+
+
 </body>
 </html>
