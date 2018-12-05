@@ -1,7 +1,6 @@
 package com.ir.project4.entity;
 
 
-import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -19,27 +18,8 @@ public class Tweet{
 	
 	private String date;
 	
-	public String getDate() {
-		return date;
-	}
-
-	public void setDate(String date) {
-		this.date = date;
-	}
-
-
 	private String sentiment;
 	
-	public String getSentiment() {
-		return sentiment;
-	}
-
-	public void setSentiment(String sentiment) {
-		this.sentiment = sentiment;
-	}
-
-	
-
 	private String tweetLang;
 	
 	@JsonProperty("text")
@@ -50,6 +30,22 @@ public class Tweet{
 	private List<String> hashtags;
 	
 	private List<String> urls;
+	
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+	
+	public String getSentiment() {
+		return sentiment;
+	}
+
+	public void setSentiment(String sentiment) {
+		this.sentiment = sentiment;
+	}
 
 	public String getId() {
 		return id;

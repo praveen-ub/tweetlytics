@@ -13,6 +13,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 @font-face{font-family:"Allerta"; font-style:normal; font-weight:400; src:local("Allerta Regular"), local("Allerta-Regular"), url("../fonts/allerta-400.woff") format("woff");}
 
 body{background-color:#fff; color:#333; overflow-x:hidden !important}
+.hide-me {display: none}
 ul{padding:0; margin:0; list-style:none}
 a{text-decoration:none; color:#2f2f2f; font-family:'Allerta',Helvetica,Arial,sans-serif}
 a:hover{color:#646464; text-decoration:none}

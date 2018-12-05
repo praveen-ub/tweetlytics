@@ -151,17 +151,43 @@ function appendTweets(tweets){
   tweets.forEach(function(tweet){
     var sentimentLabel = "label-default";
     var sentiment = tweet.sentiment;
+    var lang = tweet.tweetLang;
     if(sentiment == 'Positive'){
         sentimentLabel = "label-success";
     }
     else if(sentiment == 'Negative'){
         sentimentLabel = "label-danger";
     }
-    var tweetElement = `<div style=" border-bottom: 1px solid #b1b1b5; margin-bottom: 5px" id="tweet-data">
-             ${tweet.text}
+    var translateClass = "";
+    if(tweet.tweetLang=="en"){
+      translateClass="hide-me";
+    }
+    var tweetElement = `<div style=" border-bottom: 1px solid #b1b1b5; margin-bottom: 5px" class="tweet-content-div">
+             <span class="tweet-text">${tweet.text}</span>
+             <a href="javascript:void(0);" data-text="${tweet.text}" data-lang="${tweet.tweetLang}" class="translate-text ${translateClass}">Translate</a>
+             <span class="translated-tweet-text border border-primary"></span>
              <p style="color: grey" id="time">${tweet.date} <span class="label ${sentimentLabel}">${tweet.sentiment}</span></p>
           </div>`;
     $(tweetsContainer).append(tweetElement);
+  });
+
+  $(".translate-text").on("click",function(){
+    var textToTranslate = $(this).data("text");
+    var sourceLanguage = $(this).data("lang");
+    var payload = {tweetText:textToTranslate,tweetLang:sourceLanguage};
+    var parentDiv = $(this).parent(".tweet-content-div");
+    $.ajax({
+      url:`${backEndHost}/api/tweets/translate`,
+      type:"POST",
+      data:JSON.stringify(payload),
+      contentType:"application/json; charset=utf-8",
+      dataType:"json",
+      success: function(result){
+          var translatedText = `<p class="bg-success">${result.data}</p>`
+          $(parentDiv).find(".translated-tweet-text").html(translatedText);
+          console.log("Translated text is::"+result.data);
+      }
+    });
   });
 }
 
@@ -197,6 +223,7 @@ $(function(){
         $("#analytics").hide();
         $("#tweets").show();
         $("#hashtags").show();
+        filterTweets();
         // $("#filter-section").show();
     }
   });

@@ -22,6 +22,14 @@ public class TweetController{
 	@Autowired
 	private TweetService tweetService;
 	
+	@RequestMapping(value="/translate",method=RequestMethod.POST)
+	public AppResponse translate(@RequestBody JsonNode request){
+		
+		String textToTranslate = request.get("tweetText").asText();
+		String tweetLanguage = request.get("tweetLang").asText();
+		String translatedText = tweetService.getTranslatedText(textToTranslate,tweetLanguage);
+		return new AppResponse(200,"Success", translatedText);
+	}
 	
 	@RequestMapping(value="/filter",method=RequestMethod.POST)
 	public AppResponse filterTweets(@RequestBody JsonNode request){
