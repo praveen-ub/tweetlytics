@@ -31,7 +31,7 @@ public class HashtagService{
 	public List<Hashtag> getTrendingHashtags(SolrDocumentList documentsList){
 	
 		List<Hashtag> trendingHashTagsList = new ArrayList<Hashtag>();		
-		int K = 3;
+		int K = 5;
 		try{
 			
 			HashMap<String, Integer> trendingHashTags = new HashMap<String, Integer>();

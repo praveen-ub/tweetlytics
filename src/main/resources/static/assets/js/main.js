@@ -149,9 +149,17 @@ function appendTweets(tweets){
   $(tweetsContainer).text(" ");
   $(tweetsContainer).html("<h2>Tweets</h2>");
   tweets.forEach(function(tweet){
+    var sentimentLabel = "label-default";
+    var sentiment = tweet.sentiment;
+    if(sentiment == 'Positive'){
+        sentimentLabel = "label-success";
+    }
+    else if(sentiment == 'Negative'){
+        sentimentLabel = "label-danger";
+    }
     var tweetElement = `<div style=" border-bottom: 1px solid #b1b1b5; margin-bottom: 5px" id="tweet-data">
              ${tweet.text}
-             <p style="color: grey" id="time">11/11/19 11:30:30am</p>
+             <p style="color: grey" id="time">${tweet.date} <span class="label ${sentimentLabel}">${tweet.sentiment}</span></p>
           </div>`;
     $(tweetsContainer).append(tweetElement);
   });
@@ -200,6 +208,18 @@ $(function(){
         }
         else{
             removeFilter('tweet_lang',value);
+        }
+        filterTweets();
+        renderCharts();
+  });
+
+  $(".sentiment-box").on("change",function(){
+        var value = $(this).val();
+        if(this.checked){
+            addFilter('sentiment',value);
+        }
+        else{
+            removeFilter('sentiment',value);
         }
         filterTweets();
         renderCharts();

@@ -11,6 +11,9 @@ function getChart(containerId, chartType){
     case 'geo':
       chart = new google.visualization.GeoChart(document.getElementById(containerId));
       break;
+    case 'column':
+      chart = new google.visualization.ColumnChart(document.getElementById(containerId));
+      break;
   }
   return chart;
 }
@@ -36,5 +39,12 @@ function drawChart(chart, containerId){
   var options = {'title':'Volume '+chartTitle,
                  'width':400,
                  'height':300};
+  if(chartType=='pie'){
+    options['pieHole'] = 0.4;
+    options['colors'] = ['#4d5980','#a34529','#804d80'];
+  }
+  else if(chartType == 'bar'){
+    options['colors'] = ['#80594d', '#80594d', '#80594d', '#80594d', '#80594d'];
+  }
   chart.draw(data,options);
 }

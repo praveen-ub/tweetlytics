@@ -41,11 +41,13 @@ public class AnalyticsService{
 		
 		fieldVsChartType.put("tweet_lang", "bar");
 		fieldVsChartType.put("city", "geo");
-		fieldVsChartType.put("topic", "pie");
+		fieldVsChartType.put("topic", "column");
+		fieldVsChartType.put("sentiment", "pie");
 		
 		fieldNameVsDescription.put("tweet_lang", "Language");
 		fieldNameVsDescription.put("city", "City");
 		fieldNameVsDescription.put("topic", "Topic");
+		fieldNameVsDescription.put("sentiment", "Sentiment");
 		
 		languageVsCode.put("en", "English");
 		languageVsCode.put("fr", "French");
@@ -104,6 +106,7 @@ public class AnalyticsService{
 		solrQuery.addFacetField("tweet_lang");
 		solrQuery.addFacetField("city");
 		solrQuery.addFacetField("topic");
+		solrQuery.addFacetField("sentiment");
 		try{
 			QueryResponse response = solrClient.query(solrQuery);
 			List<FacetField> facetFields = response.getFacetFields();
@@ -113,12 +116,16 @@ public class AnalyticsService{
 				String fieldName = field.getName();
 				boolean isLangField = false;
 				boolean isCityField = false;
+				boolean isTopicField = false;
 				if("tweet_lang".equalsIgnoreCase(fieldName)){
 					isLangField = true;
 					
 				}
 				if("city".equalsIgnoreCase(fieldName)){
 					isCityField = true;
+				}
+				if("topic".equalsIgnoreCase(fieldName)){
+					isTopicField = true;
 				}
 				String chartTitle = "By "+fieldNameVsDescription.get(fieldName);
 				for (Count stat: field.getValues()){
@@ -128,6 +135,11 @@ public class AnalyticsService{
 					}
 					if(isCityField){
 						x = cityVsCountries.get(x);
+					}
+					if(isTopicField){
+						if(x.length() > 7){
+							x = x.substring(0, 7);
+						}
 					}
 					x = capitalise(x);
 					List rowData = new ArrayList();

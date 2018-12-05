@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -26,7 +27,7 @@ public class TweetService{
 	
 	@Autowired
 	private HashtagService hashTagService;
-	
+		
 	private static HashMap<String, String> codeVsLanguage = new HashMap<String, String>();
 	
 	static{
@@ -43,10 +44,15 @@ public class TweetService{
 		SolrClient solrClient = new HttpSolrClient.Builder(solrEndPoint).build();	
 		SolrQuery query = new SolrQuery();
 		HashMap<String, List> filterResults = new HashMap<String, List>();
-		
+		String tweetQuery = null;
+		String hashtagQuery = null;
 		if(filter!=null){
 			String filterQuery = getFilterString(filter);
-			query.setFilterQueries(filterQuery);
+			hashtagQuery = filterQuery;
+			tweetQuery = filterQuery;
+			if(filterQuery.contains("sentiment")){
+				tweetQuery = filterQuery+" AND tweet_emoticons:*";
+			}
 		}
 		
 		if(queryString == null){
@@ -55,11 +61,17 @@ public class TweetService{
 		else{
 			query.setQuery(queryString);
 		}
-//		query.setRows(30000);
+		query.setRows(200);
+		query.setSort("tweet_lang", ORDER.desc);
+		query.setFilterQueries(tweetQuery);
 		try{
 			QueryResponse response = solrClient.query(query);
 			SolrDocumentList documentsList = response.getResults();
 			List<Tweet> tweetList = getTweetsListFromDocuments(documentsList);
+			query.setRows(60000);
+			query.setFilterQueries(hashtagQuery);
+			response = solrClient.query(query);
+			documentsList = response.getResults();
 			List<Hashtag> hashtagList =  hashTagService.getTrendingHashtags(documentsList);
 			filterResults.put("tweets",tweetList);
 			filterResults.put("hashtags", hashtagList);
@@ -82,7 +94,7 @@ public class TweetService{
 		else{
 			query.setQuery(queryString);
 		}
-//		query.setRows(30000);
+		query.setRows(200);
 		if(filter!=null){
 			String filterQuery = getFilterString(filter);
 			query.setFilterQueries(filterQuery);
@@ -93,6 +105,9 @@ public class TweetService{
 			QueryResponse response = solrClient.query(query);
 			SolrDocumentList documentsList = response.getResults();
 			List<Tweet> tweetList = getTweetsListFromDocuments(documentsList);
+			query.setRows(60000);
+			response = solrClient.query(query);
+			documentsList = response.getResults();
 			List<Hashtag> hashtagList=  hashTagService.getTrendingHashtags(documentsList);
 			searchResults.put("tweets",tweetList);
 			searchResults.put("hashtags", hashtagList);
@@ -112,7 +127,7 @@ public class TweetService{
 		hashtag = hashtag.replace("#", "");
 		SolrQuery query = new SolrQuery();
 		query.setQuery(hashtag);
-//		query.setRows(30000);
+		query.setRows(200);
 		if(filter!=null){
 			String filterQuery = getFilterString(filter);
 			query.setFilterQueries(filterQuery);
@@ -139,7 +154,15 @@ public class TweetService{
 		for (SolrDocument document : documentsList){
 			
 			Tweet tweet = new Tweet();
-			tweet.setTweetText(document.get("tweet_text").toString());
+			String tweetText = document.get("tweet_text").toString();
+			tweetText = tweetText.replace("[", "");
+			tweetText = tweetText.replace("]", "");
+			String tweetDate = document.get("tweet_date").toString();
+			String sentiment = document.get("sentiment").toString();
+			tweet.setTweetText(tweetText);
+			tweet.setDate(tweetDate);
+		    tweet.setSentiment(sentiment);
+			
 			tweetList.add(tweet);
 		}
 		return tweetList;
@@ -151,7 +174,9 @@ public class TweetService{
 		int i = 1;
 		for (JsonNode filterValue : filterValues) {
 			String filterValueStr = filterValue.asText();
-			filterValueStr = filterValueStr.toLowerCase();
+			if(!"sentiment".equals(filterName)){
+				filterValueStr = filterValueStr.toLowerCase();
+			}
 			if(filterName.contains("lang")){
 				filterValueStr = codeVsLanguage.get(filterValueStr);
 			}
