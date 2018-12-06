@@ -162,12 +162,21 @@ function appendTweets(tweets){
     if(tweet.tweetLang=="en"){
       translateClass="hide-me";
     }
+    var tweetDate = tweet.date;
+    tweetDate = tweetDate.replace("EST","");
+    var dateArray = tweetDate.split(" ");
+    var tmp = dateArray[5];
+    var date = dateArray[3];
+    dateArray[3] = tmp;
+    dateArray[5] = date;
+    tweetDate = dateArray.join(" ");
     var tweetElement = `<div style=" border-bottom: 1px solid #b1b1b5; margin-bottom: 5px" class="tweet-content-div">
              <span class="tweet-text">${tweet.text}</span>
              <a href="javascript:void(0);" data-text="${tweet.text}" data-lang="${tweet.tweetLang}" class="translate-text ${translateClass}">Translate</a>
              <span class="translated-tweet-text border border-primary"></span>
-             <p style="color: grey" id="time">${tweet.date} <span class="label ${sentimentLabel}">${tweet.sentiment}</span></p>
+             <p style="color: grey" id="time">${tweetDate} <span class="label ${sentimentLabel}">${tweet.sentiment}</span></p>
           </div>`;
+
     $(tweetsContainer).append(tweetElement);
   });
 
@@ -196,10 +205,17 @@ function appendHashtags(hashtags){
   var hashtagsContainer = $("#hashtags .list");
   $(hashtagsContainer).text(" ");
   hashtags.forEach(function (hashtag){
-    var hashtagElement = `<li><a href="javascript:void(0)">${hashtag.name}</a></li>`;
+    var hashtagElement = `<li>
+              <a href="javascript:void(0)">
+              <span class="trending-hashtag">${hashtag.name}</span>
+              </a>
+              <div style="color: grey; font-size:12px">${hashtag.count} Tweets</div>
+              </li>`;
     $(hashtagsContainer).append(hashtagElement);
     $("#hashtags .list li a").on("click",function(){
         fetchTweetsByHashtag($(this).text());
+        $("#hashtags .list li a").find(".trending-hashtag").removeClass("text-danger")
+        $(this).find(".trending-hashtag").addClass("text-danger");
         console.log("Fetch relevant tweets for::"+$(this).text());
     });
   });
